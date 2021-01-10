@@ -1,0 +1,13 @@
+{
+  "device": "V-4EX",
+
+  "leftButtonPressed": 176,
+  "rightButtonPressed": 65712,
+
+  "camera1": 192,
+  "camera2": 448,
+  "camera3": 704,
+  "camera4": 960,
+
+  "fader": [-32, 0]
+}
