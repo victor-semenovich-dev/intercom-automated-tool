@@ -13,7 +13,7 @@ import java.util.Arrays;
 public class MidiProcessor implements MidiMonitor.Callback {
 
     private final Database database = new Database();
-    private final MidiMonitor monitor = new MidiMonitor(this);
+    private MidiMonitor monitor;
 
     private MixerConfig mixerConfig;
     private final MixerState mixerState;
@@ -24,6 +24,7 @@ public class MidiProcessor implements MidiMonitor.Callback {
         try {
             JSONObject configJson = (JSONObject) parser.parse(new FileReader(configFile));
             mixerConfig = new MixerConfig(configJson);
+            monitor = new MidiMonitor(mixerConfig.device, this);
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }

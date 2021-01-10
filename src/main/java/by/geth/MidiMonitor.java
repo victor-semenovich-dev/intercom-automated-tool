@@ -1,8 +1,6 @@
 package by.geth;
 
 import javax.sound.midi.*;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MidiMonitor {
 
@@ -10,10 +8,12 @@ public class MidiMonitor {
         void onMessageReceived(MidiDevice device, MidiMessage message);
     }
 
-    private final List<MidiDevice> openedDevices = new ArrayList<>();
+    private final String deviceName;
+    private MidiDevice device;
     private final Callback callback;
 
-    public MidiMonitor(Callback callback) {
+    public MidiMonitor(String deviceName, Callback callback) {
+        this.deviceName = deviceName;
         this.callback = callback;
     }
 
@@ -22,9 +22,9 @@ public class MidiMonitor {
         for (MidiDevice.Info deviceInfo: deviceInfoArray) {
             try {
                 MidiDevice device = MidiSystem.getMidiDevice(deviceInfo);
-                if (device.getMaxTransmitters() != 0) {
+                if (deviceName.equals(deviceInfo.getName()) && device.getMaxTransmitters() != 0) {
+                    this.device = device;
                     device.open();
-                    openedDevices.add(device);
 
                     Transmitter transmitter = device.getTransmitter();
                     transmitter.setReceiver(new DeviceReceiver(device, callback));
@@ -36,7 +36,7 @@ public class MidiMonitor {
     }
 
     public void stop() {
-        for (MidiDevice device: openedDevices) {
+       if (device != null) {
             device.close();
         }
     }
