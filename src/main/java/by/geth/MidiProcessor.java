@@ -95,39 +95,22 @@ public class MidiProcessor implements MidiMonitor.Callback {
         boolean camera3Live = mixerState.leftCamera == 3 && mixerState.fader < 1 || mixerState.rightCamera == 3 && mixerState.fader > 0;
         boolean camera4Live = mixerState.leftCamera == 4 && mixerState.fader < 1 || mixerState.rightCamera == 4 && mixerState.fader > 0;
 
-        float camera1Value = 0;
-        float camera2Value = 0;
-        float camera3Value = 0;
-        float camera4Value = 0;
-
-        if (mixerState.leftCamera == 1)
-            camera1Value = 1 - mixerState.fader;
-        else if (mixerState.rightCamera == 1)
-            camera1Value = mixerState.fader;
-
-        if (mixerState.leftCamera == 2)
-            camera2Value = 1 - mixerState.fader;
-        else if (mixerState.rightCamera == 2)
-            camera2Value = mixerState.fader;
-
-        if (mixerState.leftCamera == 3)
-            camera3Value = 1 - mixerState.fader;
-        else if (mixerState.rightCamera == 3)
-            camera3Value = mixerState.fader;
-
-        if (mixerState.leftCamera == 4)
-            camera4Value = 1 - mixerState.fader;
-        else if (mixerState.rightCamera == 4)
-            camera4Value = mixerState.fader;
-
         database.writeValue("camera/1/isLive", camera1Live);
         database.writeValue("camera/2/isLive", camera2Live);
         database.writeValue("camera/3/isLive", camera3Live);
         database.writeValue("camera/4/isLive", camera4Live);
 
-        database.writeValue("camera/1/fader", camera1Value);
-        database.writeValue("camera/2/fader", camera2Value);
-        database.writeValue("camera/3/fader", camera3Value);
-        database.writeValue("camera/4/fader", camera4Value);
+        if (camera1Live) {
+            database.writeValue("camera/1/isRequested", false);
+        }
+        if (camera2Live) {
+            database.writeValue("camera/2/isRequested", false);
+        }
+        if (camera3Live) {
+            database.writeValue("camera/3/isRequested", false);
+        }
+        if (camera4Live) {
+            database.writeValue("camera/4/isRequested", false);
+        }
     }
 }
