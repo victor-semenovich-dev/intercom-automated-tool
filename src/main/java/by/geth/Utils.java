@@ -19,7 +19,7 @@ public class Utils {
             String str = reader.readLine();
             return Integer.parseInt(str);
         } catch (Exception e) {
-            return 0;
+            return -1;
         }
     }
 }
