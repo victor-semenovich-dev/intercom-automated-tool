@@ -29,6 +29,7 @@ public class MidiProcessor implements MidiMonitor.Callback {
             e.printStackTrace();
         }
         mixerState = initState;
+        uploadMixerState();
         System.out.println(mixerState);
     }
 
