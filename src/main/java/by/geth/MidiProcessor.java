@@ -96,22 +96,22 @@ public class MidiProcessor implements MidiMonitor.Callback {
         boolean camera3Live = mixerState.leftCamera == 3 && mixerState.fader < 1 || mixerState.rightCamera == 3 && mixerState.fader > 0;
         boolean camera4Live = mixerState.leftCamera == 4 && mixerState.fader < 1 || mixerState.rightCamera == 4 && mixerState.fader > 0;
 
-        database.writeValue("camera/1/isLive", camera1Live);
-        database.writeValue("camera/2/isLive", camera2Live);
-        database.writeValue("camera/3/isLive", camera3Live);
-        database.writeValue("camera/4/isLive", camera4Live);
+        database.writeValue("intercom/camera/1/isLive", camera1Live);
+        database.writeValue("intercom/camera/2/isLive", camera2Live);
+        database.writeValue("intercom/camera/3/isLive", camera3Live);
+        database.writeValue("intercom/camera/4/isLive", camera4Live);
 
         if (camera1Live) {
-            database.writeValue("camera/1/isRequested", false);
+            database.writeValue("intercom/camera/1/isRequested", false);
         }
         if (camera2Live) {
-            database.writeValue("camera/2/isRequested", false);
+            database.writeValue("intercom/camera/2/isRequested", false);
         }
         if (camera3Live) {
-            database.writeValue("camera/3/isRequested", false);
+            database.writeValue("intercom/camera/3/isRequested", false);
         }
         if (camera4Live) {
-            database.writeValue("camera/4/isRequested", false);
+            database.writeValue("intercom/camera/4/isRequested", false);
         }
     }
 }

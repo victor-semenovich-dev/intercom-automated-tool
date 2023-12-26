@@ -13,11 +13,11 @@ import static com.google.firebase.FirebaseOptions.builder;
 public class Database {
     public Database() {
         try {
-            InputStream credStream = Main.class.getClassLoader().getResourceAsStream("intercom.json");
+            InputStream credStream = Main.class.getClassLoader().getResourceAsStream("operators.json");
             if (credStream != null) {
                 FirebaseOptions options = builder()
                         .setCredentials(GoogleCredentials.fromStream(credStream))
-                        .setDatabaseUrl("https://intercom-2385c.firebaseio.com")
+                        .setDatabaseUrl("https://operators-5f1b2.firebaseio.com")
                         .build();
                 FirebaseApp.initializeApp(options);
             } else {
