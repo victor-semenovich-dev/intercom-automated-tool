@@ -12,7 +12,7 @@ import java.util.Arrays;
 
 public class MidiProcessor implements MidiMonitor.Callback {
 
-    private final Database database = new Database();
+    private final Database database;
     private MidiMonitor monitor;
 
     private MixerConfig mixerConfig;
@@ -20,6 +20,8 @@ public class MidiProcessor implements MidiMonitor.Callback {
     private Boolean isLeftButtonPressed;
 
     public MidiProcessor(String configFile, MixerState initState) {
+        this.database = new Database(initState.location);
+
         JSONParser parser = new JSONParser();
         try {
             JSONObject configJson = (JSONObject) parser.parse(new FileReader(configFile));

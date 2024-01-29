@@ -11,17 +11,30 @@ import java.io.InputStream;
 import static com.google.firebase.FirebaseOptions.builder;
 
 public class Database {
-    public Database() {
+    public Database(ServerLocation location) {
         try {
-            InputStream credStream = Main.class.getClassLoader().getResourceAsStream("operators.json");
-            if (credStream != null) {
-                FirebaseOptions options = builder()
-                        .setCredentials(GoogleCredentials.fromStream(credStream))
-                        .setDatabaseUrl("https://operators-5f1b2.firebaseio.com")
-                        .build();
-                FirebaseApp.initializeApp(options);
-            } else {
-                System.err.println("Failed to initialize the realtime database!");
+            if (location == ServerLocation.USA) {
+                InputStream credStream = Main.class.getClassLoader().getResourceAsStream("operators.json");
+                if (credStream != null) {
+                    FirebaseOptions options = builder()
+                            .setCredentials(GoogleCredentials.fromStream(credStream))
+                            .setDatabaseUrl("https://operators-5f1b2.firebaseio.com")
+                            .build();
+                    FirebaseApp.initializeApp(options);
+                } else {
+                    System.err.println("Failed to initialize the realtime database!");
+                }
+            } else if (location == ServerLocation.EU) {
+                InputStream credStream = Main.class.getClassLoader().getResourceAsStream("intercom-eu.json");
+                if (credStream != null) {
+                    FirebaseOptions options = builder()
+                            .setCredentials(GoogleCredentials.fromStream(credStream))
+                            .setDatabaseUrl("https://intercom-eu-default-rtdb.europe-west1.firebasedatabase.app")
+                            .build();
+                    FirebaseApp.initializeApp(options);
+                } else {
+                    System.err.println("Failed to initialize the realtime database!");
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
