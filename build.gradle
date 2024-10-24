@@ -16,6 +16,7 @@ dependencies {
     implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.14.0'
     implementation 'com.google.firebase:firebase-admin:7.1.0'
     implementation 'com.googlecode.json-simple:json-simple:1.1.1'
+    implementation 'org.java-websocket:Java-WebSocket:1.5.7'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 }
