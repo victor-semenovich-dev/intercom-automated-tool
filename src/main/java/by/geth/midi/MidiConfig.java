@@ -1,11 +1,11 @@
-package by.geth;
+package by.geth.midi;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import java.util.Arrays;
 
-public class MixerConfig {
+public class MidiConfig {
     public String device;
 
     public long leftButtonPressed;
@@ -18,7 +18,7 @@ public class MixerConfig {
 
     public long[] fader;
 
-    public MixerConfig(JsonObject jsonObject) {
+    public MidiConfig(JsonObject jsonObject) {
         device = jsonObject.get("device").getAsString();
         leftButtonPressed = jsonObject.get("leftButtonPressed").getAsLong();
         rightButtonPressed = jsonObject.get("rightButtonPressed").getAsLong();

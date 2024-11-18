@@ -1,4 +1,4 @@
-package by.geth;
+package by.geth.midi;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

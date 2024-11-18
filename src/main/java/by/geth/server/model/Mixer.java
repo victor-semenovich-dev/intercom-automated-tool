@@ -25,13 +25,13 @@ public class Mixer {
         return cameras;
     }
 
-    public String toJson() {
+    public JsonObject toJson() {
         JsonObject object = new JsonObject();
         JsonArray array = new JsonArray();
         for (Camera camera: cameras) {
             array.add(camera.toJson());
         }
         object.add("cameras", array);
-        return object.toString();
+        return object;
     }
 }

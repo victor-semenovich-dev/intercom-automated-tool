@@ -1,4 +1,4 @@
-package by.geth;
+package by.geth.firebase;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
@@ -10,10 +10,12 @@ import java.io.InputStream;
 
 import static com.google.firebase.FirebaseOptions.builder;
 
+import by.geth.Main;
+
 public class Database {
-    public Database(ServerLocation location) {
+    public Database(FirebaseServerLocation location) {
         try {
-            if (location == ServerLocation.USA) {
+            if (location == FirebaseServerLocation.USA) {
                 InputStream credStream = Main.class.getClassLoader().getResourceAsStream("operators.json");
                 if (credStream != null) {
                     FirebaseOptions options = builder()
@@ -24,7 +26,7 @@ public class Database {
                 } else {
                     System.err.println("Failed to initialize the realtime database!");
                 }
-            } else if (location == ServerLocation.EU) {
+            } else if (location == FirebaseServerLocation.EU) {
                 InputStream credStream = Main.class.getClassLoader().getResourceAsStream("intercom-eu.json");
                 if (credStream != null) {
                     FirebaseOptions options = builder()

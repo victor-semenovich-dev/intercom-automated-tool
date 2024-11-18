@@ -10,19 +10,59 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
+import by.geth.midi.MidiState;
+import by.geth.server.model.Camera;
 import by.geth.server.model.Mixer;
 
 public class IntercomServer extends WebSocketServer {
-    private Mixer mixer = new Mixer();
+    private final Mixer mixer = new Mixer();
+
+    public static IntercomServer startServer() {
+        try (final DatagramSocket socket = new DatagramSocket()){
+            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+            String host = socket.getLocalAddress().getHostAddress();
+            int port = 8080;
+
+            InetSocketAddress socketAddress = new InetSocketAddress(host, port);
+
+            System.out.println("Run server at " + socketAddress);
+            IntercomServer server = new IntercomServer(socketAddress);
+
+            new Thread(server).start();
+
+            return server;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     public IntercomServer(InetSocketAddress address) {
         super(address);
     }
 
+    public void applyMidiState(MidiState state) {
+        for (int i = 0; i < mixer.getCameras().size(); i++) {
+            Camera camera = mixer.getCameras().get(i);
+            camera.setLive(state.leftCamera == i && state.fader < 1 || state.rightCamera == i && state.fader > 0);
+            if (camera.isLive()) {
+                camera.setAttention(false);
+                camera.setChange(false);
+            }
+        }
+        System.out.println(mixer.toJson());
+        broadcastMixer();
+    }
+
+    private void broadcastMixer() {
+        // TODO use a bit mask to transfer data
+        broadcast(mixer.toJson().toString());
+    }
+
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
         log("onOpen", conn.getRemoteSocketAddress());
-        conn.send(mixer.toJson());
+        conn.send(mixer.toJson().toString());
     }
 
     @Override
@@ -32,6 +72,7 @@ public class IntercomServer extends WebSocketServer {
 
     @Override
     public void onMessage(WebSocket conn, String message) {
+        // TODO check thread
         log("onMessage", conn.getRemoteSocketAddress(), message);
     }
 
@@ -56,21 +97,5 @@ public class IntercomServer extends WebSocketServer {
 
     private void logError(String message, Object... args) {
         System.err.println(IntercomServer.class.getSimpleName() + ": " + message + ", " + Arrays.toString(args));
-    }
-
-    public static void main(String[] args) {
-        try (final DatagramSocket socket = new DatagramSocket()){
-            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
-            String host = socket.getLocalAddress().getHostAddress();
-            int port = 8080;
-
-            InetSocketAddress socketAddress = new InetSocketAddress(host, port);
-
-            System.out.println("Run server at " + socketAddress);
-            WebSocketServer server = new IntercomServer(socketAddress);
-            server.run();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }
