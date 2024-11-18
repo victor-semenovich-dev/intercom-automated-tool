@@ -1,11 +1,9 @@
 package by.geth;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.Arrays;
 
 import javax.sound.midi.MidiDevice;
@@ -20,18 +18,18 @@ public class MidiProcessor implements MidiMonitor.Callback {
     private final MixerState mixerState;
     private Boolean isLeftButtonPressed;
 
-    public MidiProcessor(String configFile, MixerState initState) {
-        this.database = new Database(initState.location);
+    public MidiProcessor(String configFile) {
+        mixerState = new MixerState();
+        this.database = new Database(mixerState.location);
 
-        JSONParser parser = new JSONParser();
         try {
-            JSONObject configJson = (JSONObject) parser.parse(new FileReader(configFile));
+            JsonObject configJson = (JsonObject) JsonParser.parseReader(new FileReader(configFile));
             mixerConfig = new MixerConfig(configJson);
             monitor = new MidiMonitor(mixerConfig.device, this);
-        } catch (IOException | ParseException e) {
+            System.out.println("MidiMonitor created");
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        mixerState = initState;
         uploadMixerState();
         System.out.println(mixerState);
     }

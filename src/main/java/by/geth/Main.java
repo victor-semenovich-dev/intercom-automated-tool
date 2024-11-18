@@ -6,8 +6,8 @@ import java.io.InputStreamReader;
 
 public class Main {
     public static void main(String[] args) {
-        MixerState initState = InitStateReader.readInitState();
-        MidiProcessor processor = new MidiProcessor(args[0], initState);
+//        MixerState initState = InitStateReader.readInitState();
+        MidiProcessor processor = new MidiProcessor(args[0]);
 
         processor.start();
         runInfiniteLoop();

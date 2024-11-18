@@ -8,6 +8,13 @@ public class MixerState {
     public float fader;
     public ServerLocation location;
 
+    public MixerState() {
+        this.leftCamera = 1;
+        this.rightCamera = 1;
+        this.fader = 0;
+        this.location = ServerLocation.EU;
+    }
+
     public MixerState(int leftCamera, int rightCamera, float fader, ServerLocation location) {
         this.leftCamera = leftCamera;
         this.rightCamera = rightCamera;
