@@ -1,4 +1,4 @@
-package by.geth.socket;
+package by.geth.server;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
@@ -10,7 +10,10 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
+import by.geth.server.model.Mixer;
+
 public class IntercomServer extends WebSocketServer {
+    private Mixer mixer = new Mixer();
 
     public IntercomServer(InetSocketAddress address) {
         super(address);
@@ -19,6 +22,7 @@ public class IntercomServer extends WebSocketServer {
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
         log("onOpen", conn.getRemoteSocketAddress());
+        conn.send(mixer.toJson());
     }
 
     @Override
@@ -38,7 +42,7 @@ public class IntercomServer extends WebSocketServer {
 
     @Override
     public void onError(WebSocket conn, Exception ex) {
-        logError("onError", conn.getRemoteSocketAddress(), ex);
+        logError("onError", ex);
     }
 
     @Override

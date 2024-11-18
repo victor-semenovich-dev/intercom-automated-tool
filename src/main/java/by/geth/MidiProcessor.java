@@ -4,11 +4,12 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import javax.sound.midi.MidiDevice;
-import javax.sound.midi.MidiMessage;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
+
+import javax.sound.midi.MidiDevice;
+import javax.sound.midi.MidiMessage;
 
 public class MidiProcessor implements MidiMonitor.Callback {
 
