@@ -83,7 +83,13 @@ public class IntercomServer extends WebSocketServer {
                 int id = jsonObject.get("id").getAsInt();
                 if (jsonObject.has("live")) {
                     boolean live = jsonObject.get("live").getAsBoolean();
-                    mixer.getCameras().get(id).setLive(live);
+                    if (live) {
+                        for (int i = 0; i < mixer.getCameras().size(); i++) {
+                            mixer.getCameras().get(i).setLive(i == id);
+                        }
+                    } else {
+                        mixer.getCameras().get(id).setLive(false);
+                    }
                 }
                 if (jsonObject.has("ready")) {
                     boolean ready = jsonObject.get("ready").getAsBoolean();
