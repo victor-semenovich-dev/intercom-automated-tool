@@ -10,7 +10,7 @@ public class Camera {
 
     public Camera() {
         this.live = false;
-        this.ready = false;
+        this.ready = true;
         this.attention = false;
     }
 
