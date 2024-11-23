@@ -81,11 +81,23 @@ public class IntercomServer extends WebSocketServer {
             JsonObject jsonObject = (JsonObject) JsonParser.parseString(message);
             if (jsonObject.has("id")) {
                 int id = jsonObject.get("id").getAsInt();
+                if (jsonObject.has("live")) {
+                    boolean live = jsonObject.get("live").getAsBoolean();
+                    mixer.getCameras().get(id).setLive(live);
+                }
                 if (jsonObject.has("ready")) {
                     boolean ready = jsonObject.get("ready").getAsBoolean();
                     mixer.getCameras().get(id).setReady(ready);
-                    broadcastMixer();
                 }
+                if (jsonObject.has("attention")) {
+                    boolean attention = jsonObject.get("attention").getAsBoolean();
+                    mixer.getCameras().get(id).setAttention(attention);
+                }
+                if (jsonObject.has("change")) {
+                    boolean change = jsonObject.get("change").getAsBoolean();
+                    mixer.getCameras().get(id).setChange(change);
+                }
+                broadcastMixer();
             }
         } catch (Exception e) {
             e.printStackTrace();
