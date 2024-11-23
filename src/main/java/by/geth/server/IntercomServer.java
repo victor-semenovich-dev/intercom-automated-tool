@@ -1,5 +1,8 @@
 package by.geth.server;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
@@ -55,7 +58,6 @@ public class IntercomServer extends WebSocketServer {
     }
 
     private void broadcastMixer() {
-        // TODO use a bit mask to transfer data
         broadcast(mixer.toJson().toString());
     }
 
@@ -74,6 +76,20 @@ public class IntercomServer extends WebSocketServer {
     public void onMessage(WebSocket conn, String message) {
         // TODO check thread
         log("onMessage", conn.getRemoteSocketAddress(), message);
+
+        try {
+            JsonObject jsonObject = (JsonObject) JsonParser.parseString(message);
+            if (jsonObject.has("id")) {
+                int id = jsonObject.get("id").getAsInt();
+                if (jsonObject.has("ready")) {
+                    boolean ready = jsonObject.get("ready").getAsBoolean();
+                    mixer.getCameras().get(id).setReady(ready);
+                    broadcastMixer();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
