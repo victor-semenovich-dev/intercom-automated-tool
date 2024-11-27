@@ -104,6 +104,8 @@ public class IntercomServer extends WebSocketServer {
                     mixer.getCameras().get(id).setChange(change);
                 }
                 broadcastMixer();
+            } else {
+                broadcast(message);
             }
         } catch (Exception e) {
             e.printStackTrace();
