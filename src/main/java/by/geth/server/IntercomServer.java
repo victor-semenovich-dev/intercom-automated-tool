@@ -31,7 +31,7 @@ public class IntercomServer extends WebSocketServer {
 
             InetSocketAddress socketAddress = new InetSocketAddress(host, port);
 
-            System.out.println("Run server at " + socketAddress);
+            System.out.println("Run the socket at " + socketAddress);
             IntercomServer server = new IntercomServer(socketAddress);
 
             new Thread(server).start();
@@ -56,11 +56,11 @@ public class IntercomServer extends WebSocketServer {
                 camera.setChange(false);
             }
         }
-        System.out.println(mixer.toJson());
         broadcastMixer();
     }
 
     private void broadcastMixer() {
+        System.out.println(mixer.toJson());
         broadcast(mixer.toJson().toString());
     }
 
