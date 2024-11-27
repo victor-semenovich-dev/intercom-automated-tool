@@ -11,10 +11,13 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import by.geth.midi.MidiState;
 import by.geth.server.model.Camera;
+import by.geth.server.model.Message;
 import by.geth.server.model.Mixer;
 
 public class IntercomServer extends WebSocketServer {
@@ -80,6 +83,7 @@ public class IntercomServer extends WebSocketServer {
         try {
             JsonObject jsonObject = (JsonObject) JsonParser.parseString(message);
             if (jsonObject.has("id")) {
+                //update a camera state
                 int id = jsonObject.get("id").getAsInt();
                 if (jsonObject.has("live")) {
                     boolean live = jsonObject.get("live").getAsBoolean();
@@ -103,10 +107,46 @@ public class IntercomServer extends WebSocketServer {
                     boolean change = jsonObject.get("change").getAsBoolean();
                     mixer.getCameras().get(id).setChange(change);
                 }
-                broadcastMixer();
-            } else {
-                broadcast(message);
+            } else if (jsonObject.has("message")) {
+                // add new message
+                Integer to = null;
+                Integer from = null;
+                long timestamp = jsonObject.get("timestamp").getAsLong();
+                String messageText = jsonObject.get("message").getAsString();
+                if (jsonObject.has("to")) {
+                    to = jsonObject.get("to").getAsInt();
+                }
+                if (jsonObject.has("from")) {
+                    from = jsonObject.get("from").getAsInt();
+                }
+
+                if (to != null) {
+                    mixer.getOutcomingMessages().add(new Message(to, timestamp, messageText));
+                }
+                if (from != null) {
+                    mixer.getIncomingMessages().add(new Message(from, timestamp, messageText));
+                }
+            } else if (jsonObject.has("command")) {
+                // process other commands
+                String command = jsonObject.get("command").getAsString();
+                switch (command) {
+                    case "cancelIncomingMessages":
+                        mixer.getIncomingMessages().clear();
+                        break;
+                    case "cancelOutcomingMessages":
+                        int to = jsonObject.get("to").getAsInt();
+                        List<Message> messagesToRemove = new ArrayList<>();
+                        for (Message outcomingMessage: mixer.getOutcomingMessages()) {
+                            if (outcomingMessage.getCameraId() == to) {
+                                messagesToRemove.add(outcomingMessage);
+                            }
+                        }
+                        mixer.getOutcomingMessages().removeAll(messagesToRemove);
+                        break;
+                }
             }
+
+            broadcastMixer();
         } catch (Exception e) {
             e.printStackTrace();
         }
