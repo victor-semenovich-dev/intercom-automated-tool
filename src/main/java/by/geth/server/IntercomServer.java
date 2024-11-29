@@ -47,7 +47,7 @@ public class IntercomServer extends WebSocketServer {
         super(address);
     }
 
-    public void applyMidiState(MidiState state) {
+    public synchronized void applyMidiState(MidiState state) {
         for (int i = 0; i < mixer.getCameras().size(); i++) {
             Camera camera = mixer.getCameras().get(i);
             camera.setLive(state.leftCamera == i && state.fader < 1 || state.rightCamera == i && state.fader > 0);
@@ -65,7 +65,7 @@ public class IntercomServer extends WebSocketServer {
     }
 
     @Override
-    public void onOpen(WebSocket conn, ClientHandshake handshake) {
+    public synchronized void onOpen(WebSocket conn, ClientHandshake handshake) {
         log("onOpen", conn.getRemoteSocketAddress());
         conn.send(mixer.toJson().toString());
     }
@@ -76,8 +76,7 @@ public class IntercomServer extends WebSocketServer {
     }
 
     @Override
-    public void onMessage(WebSocket conn, String message) {
-        // TODO check thread
+    public synchronized void onMessage(WebSocket conn, String message) {
         log("onMessage", conn.getRemoteSocketAddress(), message);
 
         try {
