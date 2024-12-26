@@ -1,5 +1,7 @@
 package by.geth.server;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -112,6 +114,9 @@ public class IntercomServer extends WebSocketServer {
                 Integer from = null;
                 long timestamp = jsonObject.get("timestamp").getAsLong();
                 String messageText = jsonObject.get("message").getAsString();
+                JsonElement userNameObj = jsonObject.get("userName");
+                String userName = userNameObj == null || userNameObj instanceof JsonNull ?
+                        null : userNameObj.getAsString();
                 if (jsonObject.has("to")) {
                     to = jsonObject.get("to").getAsInt();
                 }
@@ -120,10 +125,10 @@ public class IntercomServer extends WebSocketServer {
                 }
 
                 if (to != null) {
-                    mixer.getOutcomingMessages().add(new Message(to, timestamp, messageText));
+                    mixer.getOutcomingMessages().add(new Message(to, timestamp, messageText, userName));
                 }
                 if (from != null) {
-                    mixer.getIncomingMessages().add(new Message(from, timestamp, messageText));
+                    mixer.getIncomingMessages().add(new Message(from, timestamp, messageText, userName));
                 }
             } else if (jsonObject.has("command")) {
                 // process other commands
