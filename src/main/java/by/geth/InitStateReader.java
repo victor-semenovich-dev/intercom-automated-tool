@@ -1,11 +1,13 @@
 package by.geth;
 
+import by.geth.midi.MidiState;
+import by.geth.midi.Utils;
+
 public class InitStateReader {
-    public static MixerState readInitState() {
+    public static MidiState readInitState() {
         int leftCamera = 0;
         int rightCamera = 0;
         float fader = -1;
-        ServerLocation location = null;
 
         while (leftCamera == 0) {
             int res = Utils.readInt("Какая камера выбрана с левой стороны? (1-4): ");
@@ -28,15 +30,6 @@ public class InitStateReader {
             }
         }
 
-        while (location == null) {
-            int res = Utils.readInt("Выбери сервер (0 - USA, 1 - EU): ");
-            if (res == 0) {
-                location = ServerLocation.USA;
-            } else if (res == 1) {
-                location = ServerLocation.EU;
-            }
-        }
-
-        return new MixerState(leftCamera, rightCamera, fader, location);
+        return new MidiState(leftCamera, rightCamera, fader);
     }
 }

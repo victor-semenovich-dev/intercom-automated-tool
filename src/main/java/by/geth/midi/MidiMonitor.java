@@ -1,4 +1,4 @@
-package by.geth;
+package by.geth.midi;
 
 import javax.sound.midi.*;
 

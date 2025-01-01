@@ -1,11 +1,11 @@
-package by.geth;
+package by.geth.midi;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import java.util.Arrays;
 
-public class MixerConfig {
+public class MidiConfig {
     public String device;
 
     public long leftButtonPressed;
@@ -18,19 +18,19 @@ public class MixerConfig {
 
     public long[] fader;
 
-    public MixerConfig(JSONObject jsonObject) {
-        device = (String) jsonObject.get("device");
-        leftButtonPressed = (long) jsonObject.get("leftButtonPressed");
-        rightButtonPressed = (long) jsonObject.get("rightButtonPressed");
-        camera1 = (long) jsonObject.get("camera1");
-        camera2 = (long) jsonObject.get("camera2");
-        camera3 = (long) jsonObject.get("camera3");
-        camera4 = (long) jsonObject.get("camera4");
+    public MidiConfig(JsonObject jsonObject) {
+        device = jsonObject.get("device").getAsString();
+        leftButtonPressed = jsonObject.get("leftButtonPressed").getAsLong();
+        rightButtonPressed = jsonObject.get("rightButtonPressed").getAsLong();
+        camera1 = jsonObject.get("camera1").getAsLong();
+        camera2 = jsonObject.get("camera2").getAsLong();
+        camera3 = jsonObject.get("camera3").getAsLong();
+        camera4 = jsonObject.get("camera4").getAsLong();
 
-        JSONArray jsonArray = (JSONArray) jsonObject.get("fader");
+        JsonArray jsonArray = jsonObject.get("fader").getAsJsonArray();
         fader = new long[jsonArray.size()];
         for (int i = 0; i < jsonArray.size(); i++) {
-            fader[i] = (long) jsonArray.get(i);
+            fader[i] = jsonArray.get(i).getAsLong();
         }
     }
 

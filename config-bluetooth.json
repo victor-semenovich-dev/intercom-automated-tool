@@ -1,0 +1,13 @@
+{
+  "device": "Bluetooth",
+
+  "leftButtonPressed": 6566288,
+  "rightButtonPressed": 6566800,
+
+  "camera1": 8339857,
+  "camera2": 8340369,
+  "camera3": 8340881,
+  "camera4": 8341393,
+
+  "fader": [-32, 0]
+}
