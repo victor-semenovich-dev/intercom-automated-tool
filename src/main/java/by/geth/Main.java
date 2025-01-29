@@ -9,9 +9,10 @@ import by.geth.server.IntercomServer;
 
 public class Main {
     public static void main(String[] args) {
-        IntercomServer server = IntercomServer.startServer();
-
 //        MixerState initState = InitStateReader.readInitState();
+        confirmVideoMixerPrepared();
+
+        IntercomServer server = IntercomServer.startServer();
         MidiProcessor processor = new MidiProcessor(args[0], server);
 
         processor.start();
@@ -33,6 +34,21 @@ public class Main {
         }
         try {
             reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void confirmVideoMixerPrepared() {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        try {
+            System.out.println(
+                    "Чтобы запустить сервер для Интеркома, убедись в следующем и нажми Enter:\n" +
+                    "1. Видеопульт включён;\n" +
+                    "2. Камера 1 выбрана с обеих сторон A и B;\n" +
+                    "3. Центральный фейдер опущен."
+            );
+            reader.readLine();
         } catch (IOException e) {
             e.printStackTrace();
         }
