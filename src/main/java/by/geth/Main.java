@@ -10,14 +10,14 @@ import by.geth.server.IntercomServer;
 public class Main {
     public static void main(String[] args) {
 //        MixerState initState = InitStateReader.readInitState();
-        confirmVideoMixerPrepared();
+//        confirmVideoMixerPrepared();
 
         IntercomServer server = IntercomServer.startServer();
-        MidiProcessor processor = new MidiProcessor(args[0], server);
+//        MidiProcessor processor = new MidiProcessor(args[0], server);
 
-        processor.start();
+//        processor.start();
         runInfiniteLoop();
-        processor.stop();
+//        processor.stop();
     }
 
     private static void runInfiniteLoop() {

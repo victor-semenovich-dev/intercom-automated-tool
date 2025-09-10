@@ -16,6 +16,8 @@ public class Mixer {
         cameras.add(new Camera());
         cameras.add(new Camera());
         cameras.add(new Camera());
+        cameras.add(new Camera());
+        cameras.add(new Camera());
     }
 
     public Mixer(List<Camera> cameras) {
