@@ -52,12 +52,17 @@ public class IntercomServer extends WebSocketServer {
         for (int i = 0; i < mixer.getCameras().size(); i++) {
             Camera camera = mixer.getCameras().get(i);
             boolean isLive = (state.getPgm() == i);
+            boolean isPreview = (state.getPvw() == i);
             if (camera.isLive() != isLive) {
                 camera.setLive(isLive);
                 if (camera.isLive()) {
                     camera.setAttention(false);
                     camera.setChange(false);
                 }
+                somethingChanged = true;
+            }
+            if (camera.isPreview() != isPreview) {
+                camera.setPreview(isPreview);
                 somethingChanged = true;
             }
         }
