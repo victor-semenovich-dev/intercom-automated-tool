@@ -1,10 +1,11 @@
 package by.geth.server;
 
+import by.geth.server.model.Message;
+import by.geth.server.model.Mixer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
@@ -16,11 +17,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import by.geth.midi.MidiState;
-import by.geth.server.model.Camera;
-import by.geth.server.model.Message;
-import by.geth.server.model.Mixer;
 
 public class IntercomServer extends WebSocketServer {
     private final Mixer mixer = new Mixer();
@@ -47,18 +43,6 @@ public class IntercomServer extends WebSocketServer {
 
     public IntercomServer(InetSocketAddress address) {
         super(address);
-    }
-
-    public synchronized void applyMidiState(MidiState state) {
-        for (int i = 0; i < mixer.getCameras().size(); i++) {
-            Camera camera = mixer.getCameras().get(i);
-            camera.setLive(state.leftCamera == i && state.fader < 1 || state.rightCamera == i && state.fader > 0);
-            if (camera.isLive()) {
-                camera.setAttention(false);
-                camera.setChange(false);
-            }
-        }
-        broadcastMixer();
     }
 
     private void broadcastMixer() {
