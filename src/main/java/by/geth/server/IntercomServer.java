@@ -1,5 +1,7 @@
 package by.geth.server;
 
+import by.geth.avmatrix.AvMatrixState;
+import by.geth.server.model.Camera;
 import by.geth.server.model.Message;
 import by.geth.server.model.Mixer;
 import com.google.gson.JsonElement;
@@ -43,6 +45,25 @@ public class IntercomServer extends WebSocketServer {
 
     public IntercomServer(InetSocketAddress address) {
         super(address);
+    }
+
+    public void applyAvMatrixState(AvMatrixState state) {
+        boolean somethingChanged = false;
+        for (int i = 0; i < mixer.getCameras().size(); i++) {
+            Camera camera = mixer.getCameras().get(i);
+            boolean isLive = (state.getPgm() == i);
+            if (camera.isLive() != isLive) {
+                camera.setLive(isLive);
+                if (camera.isLive()) {
+                    camera.setAttention(false);
+                    camera.setChange(false);
+                }
+                somethingChanged = true;
+            }
+        }
+        if (somethingChanged) {
+            broadcastMixer();
+        }
     }
 
     private void broadcastMixer() {
