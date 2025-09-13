@@ -1,4 +1,5 @@
 {
-  "ip": "172.16.51.12",
+  "authUrl": "http://172.16.51.12/cgi-bin/entry.cgi/system/login",
+  "stateUrl": "http://172.16.51.12/cgi-bin/entry.cgi/event/contrl-menu-basic",
   "delayMs": 0
 }

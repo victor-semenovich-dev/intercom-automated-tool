@@ -12,6 +12,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.List;
 
 public class AvMatrixStateProcessor {
@@ -66,12 +67,12 @@ public class AvMatrixStateProcessor {
                 .build();
 
         try {
-            String url = String.format("http://%s/cgi-bin/entry.cgi/system/login", config.ip);
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
+                    .uri(URI.create(config.authUrl))
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers
                             .ofString("{\"sUserName\": \"admin\", \"sPassword\": \"YWRtaW4=\"}"))
+                    .timeout(Duration.ofSeconds(5))
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             System.out.println(response.body());
@@ -85,7 +86,7 @@ public class AvMatrixStateProcessor {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return "";
     }
 
     private AvMatrixState getState() {
@@ -93,10 +94,10 @@ public class AvMatrixStateProcessor {
             long start = System.currentTimeMillis();
 
             HttpClient client = HttpClient.newHttpClient();
-            String url = String.format("http://%s/cgi-bin/entry.cgi/event/contrl-menu-basic", config.ip);
             HttpRequest request = HttpRequest.newBuilder()
                     .header("Cookie", cookies)
-                    .uri(URI.create(url))
+                    .uri(URI.create(config.stateUrl))
+                    .timeout(Duration.ofSeconds(5))
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             String responseBody = response.body();
@@ -117,24 +118,28 @@ public class AvMatrixStateProcessor {
     }
 
     private static class Config {
-        private String ip;
+        private String authUrl;
+        private String stateUrl;
         private int delayMs;
 
         public static Config fromJson(JsonObject json) {
-            String ip = json.get("ip").getAsString();
+            String authUrl = json.has("authUrl") ? json.get("authUrl").getAsString() : null;
+            String stateUrl = json.get("stateUrl").getAsString();
             int delayMs = json.get("delayMs").getAsInt();
-            return new Config(ip, delayMs);
+            return new Config(authUrl, stateUrl, delayMs);
         }
 
-        public Config(String ip, int delayMs) {
-            this.ip = ip;
+        public Config(String authUrl, String stateUrl, int delayMs) {
+            this.authUrl = authUrl;
+            this.stateUrl = stateUrl;
             this.delayMs = delayMs;
         }
 
         @Override
         public String toString() {
             return "Config{" +
-                    "ip='" + ip + '\'' +
+                    "authUrl='" + authUrl + '\'' +
+                    ", stateUrl='" + stateUrl + '\'' +
                     ", delayMs=" + delayMs +
                     '}';
         }
