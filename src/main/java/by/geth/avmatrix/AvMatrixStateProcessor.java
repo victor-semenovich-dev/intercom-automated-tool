@@ -19,7 +19,7 @@ public class AvMatrixStateProcessor {
 
     private IntercomServer server;
     private Config config;
-    private String cookies;
+    private String cookies = "";
 
     public static void start(IntercomServer server, String configFile) {
         AvMatrixStateProcessor processor = new AvMatrixStateProcessor(server, configFile);
@@ -39,11 +39,20 @@ public class AvMatrixStateProcessor {
 
     public void startProcessing() {
         new Thread(() -> {
-            cookies = authenticate();
+            while (!authenticate()) {
+                System.out.println("Failed to authenticate. Retry in 5 seconds..");
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
             while (true) {
                 try {
                     AvMatrixState state = getState();
-                    server.applyAvMatrixState(state);
+                    if (state != null) {
+                        server.applyAvMatrixState(state);
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {
@@ -57,7 +66,7 @@ public class AvMatrixStateProcessor {
         }).start();
     }
 
-    private String authenticate() {
+    private boolean authenticate() {
         CookieManager cookieManager = new CookieManager();
         CookieHandler.setDefault(cookieManager);
 
@@ -80,16 +89,18 @@ public class AvMatrixStateProcessor {
             List<HttpCookie> cookies = cookieManager.getCookieStore().getCookies();
             for (HttpCookie cookie: cookies) {
                 if (cookie.getName().equals("token")) {
-                    return String.format("%s=%s", cookie.getName(), cookie.getValue());
+                    this.cookies = String.format("%s=%s", cookie.getName(), cookie.getValue());
+                    return true;
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return "";
+        return false;
     }
 
     private AvMatrixState getState() {
+        String responseBody = null;
         try {
             long start = System.currentTimeMillis();
 
@@ -100,7 +111,7 @@ public class AvMatrixStateProcessor {
                     .timeout(Duration.ofSeconds(5))
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            String responseBody = response.body();
+            responseBody = response.body();
             JsonObject jsonObject = (JsonObject) JsonParser.parseString(responseBody);
             int pgm = Integer.parseInt(jsonObject.get("PGM").getAsString()) - 1; // 0-based
             int pvw = Integer.parseInt(jsonObject.get("PVW").getAsString()) - 1; // 0-based
@@ -112,9 +123,10 @@ public class AvMatrixStateProcessor {
             System.out.println("Got new state " + state + " in " + duration + "ms");
             return state;
         } catch (Exception e) {
+            System.out.println("An error occurred on get state, response body: " + responseBody);
             e.printStackTrace();
-            return null;
         }
+        return null;
     }
 
     private static class Config {
