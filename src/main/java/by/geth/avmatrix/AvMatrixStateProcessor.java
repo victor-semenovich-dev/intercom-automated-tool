@@ -125,11 +125,13 @@ public class AvMatrixStateProcessor {
             }
             int pgm = Integer.parseInt(jsonObject.get("PGM").getAsString()) - 1; // 0-based
             int pvw = Integer.parseInt(jsonObject.get("PVW").getAsString()) - 1; // 0-based
+            int auto = Integer.parseInt(jsonObject.get("AUTO").getAsString());
+            int tbar = Integer.parseInt(jsonObject.get("TBAR").getAsString());
 
             long finish = System.currentTimeMillis();
             long duration = finish - start;
 
-            AvMatrixState state = new AvMatrixState(pgm, pvw);
+            AvMatrixState state = new AvMatrixState(pgm, pvw, auto, tbar);
             System.out.println("Got new state " + state + " in " + duration + "ms");
             return state;
         } catch (ClassCastException | IOException | InterruptedException e) {

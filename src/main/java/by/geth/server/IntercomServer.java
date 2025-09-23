@@ -50,8 +50,9 @@ public class IntercomServer extends WebSocketServer {
         boolean somethingChanged = false;
         for (int i = 0; i < mixer.getCameras().size(); i++) {
             Camera camera = mixer.getCameras().get(i);
-            boolean isLive = (state.getPgm() == i);
-            boolean isPreview = (state.getPvw() == i);
+            boolean bothCamerasLive = (state.getAuto() == 1) || (state.getTbar() > 0 && state.getTbar() < 100);
+            boolean isLive = (state.getPgm() == i) || (state.getPvw() == i && bothCamerasLive);
+            boolean isPreview = (state.getPvw() == i) && !bothCamerasLive;
             if (camera.isLive() != isLive) {
                 camera.setLive(isLive);
                 if (camera.isLive()) {
