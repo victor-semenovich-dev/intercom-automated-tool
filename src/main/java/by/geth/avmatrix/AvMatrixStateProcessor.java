@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import java.io.FileReader;
+import java.io.IOException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.HttpCookie;
@@ -17,12 +18,13 @@ import java.util.List;
 
 public class AvMatrixStateProcessor {
 
-    private IntercomServer server;
+    private final IntercomServer server;
     private Config config;
     private String cookies = "";
 
     public static void start(IntercomServer server, String configFile) {
         AvMatrixStateProcessor processor = new AvMatrixStateProcessor(server, configFile);
+        processor.authenticateWithRetryPolicy();
         processor.startProcessing();
     }
 
@@ -32,41 +34,46 @@ public class AvMatrixStateProcessor {
             JsonObject configJson = (JsonObject) JsonParser.parseReader(new FileReader(configFile));
             config = Config.fromJson(configJson);
             System.out.println(config);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
+            System.out.println("Failed to parse the config file!");
+            System.exit(1);
         }
     }
 
     public void startProcessing() {
         new Thread(() -> {
-            while (!authenticate()) {
-                System.out.println("Failed to authenticate. Retry in 5 seconds..");
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
             while (true) {
                 try {
                     AvMatrixState state = getState();
                     if (state != null) {
                         server.applyAvMatrixState(state);
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } catch (AuthenticationException e) {
+                    System.out.println("Authentication error!");
+                    authenticateWithRetryPolicy();
                 } finally {
                     try {
                         Thread.sleep(config.delayMs);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                    } catch (InterruptedException ignored) {
                     }
                 }
             }
         }).start();
     }
 
+    private void authenticateWithRetryPolicy() {
+        while (!authenticate()) {
+            System.out.println("Failed to authenticate! Waiting for 3s...");
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException ignored) {
+            }
+        }
+    }
+
     private boolean authenticate() {
+        System.out.println("Authentication...");
+
         CookieManager cookieManager = new CookieManager();
         CookieHandler.setDefault(cookieManager);
 
@@ -83,24 +90,22 @@ public class AvMatrixStateProcessor {
                             .ofString("{\"sUserName\": \"admin\", \"sPassword\": \"YWRtaW4=\"}"))
                     .timeout(Duration.ofSeconds(5))
                     .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.println(response.body());
+            client.send(request, HttpResponse.BodyHandlers.ofString());
 
             List<HttpCookie> cookies = cookieManager.getCookieStore().getCookies();
             for (HttpCookie cookie: cookies) {
                 if (cookie.getName().equals("token")) {
                     this.cookies = String.format("%s=%s", cookie.getName(), cookie.getValue());
+                    System.out.println("Successful authentication!");
                     return true;
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
         }
         return false;
     }
 
-    private AvMatrixState getState() {
-        String responseBody = null;
+    private AvMatrixState getState() throws AuthenticationException {
         try {
             long start = System.currentTimeMillis();
 
@@ -111,8 +116,13 @@ public class AvMatrixStateProcessor {
                     .timeout(Duration.ofSeconds(5))
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            responseBody = response.body();
-            JsonObject jsonObject = (JsonObject) JsonParser.parseString(responseBody);
+            JsonObject jsonObject = (JsonObject) JsonParser.parseString(response.body());
+            if (jsonObject.has("error")) {
+                int code = jsonObject.get("error").getAsJsonObject().get("code").getAsInt();
+                if (code == 401) {
+                    throw new AuthenticationException();
+                }
+            }
             int pgm = Integer.parseInt(jsonObject.get("PGM").getAsString()) - 1; // 0-based
             int pvw = Integer.parseInt(jsonObject.get("PVW").getAsString()) - 1; // 0-based
 
@@ -122,17 +132,20 @@ public class AvMatrixStateProcessor {
             AvMatrixState state = new AvMatrixState(pgm, pvw);
             System.out.println("Got new state " + state + " in " + duration + "ms");
             return state;
-        } catch (Exception e) {
-            System.out.println("An error occurred on get state, response body: " + responseBody);
-            e.printStackTrace();
+        } catch (ClassCastException | IOException | InterruptedException e) {
+            System.out.println("An error occurred on get state! Waiting for 3s...");
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException ignored) {
+            }
+            return null;
         }
-        return null;
     }
 
     private static class Config {
-        private String authUrl;
-        private String stateUrl;
-        private int delayMs;
+        private final String authUrl;
+        private final String stateUrl;
+        private final int delayMs;
 
         public static Config fromJson(JsonObject json) {
             String authUrl = json.has("authUrl") ? json.get("authUrl").getAsString() : null;
@@ -156,4 +169,6 @@ public class AvMatrixStateProcessor {
                     '}';
         }
     }
+
+    static class AuthenticationException extends Exception {}
 }

@@ -17,7 +17,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class IntercomServer extends WebSocketServer {
@@ -72,7 +71,7 @@ public class IntercomServer extends WebSocketServer {
     }
 
     private void broadcastMixer() {
-        System.out.println(mixer.toJson());
+//        System.out.println(mixer.toJson());
         broadcast(mixer.toJson().toString());
     }
 
@@ -182,10 +181,10 @@ public class IntercomServer extends WebSocketServer {
     }
 
     private void log(String message, Object... args) {
-        System.out.println(IntercomServer.class.getSimpleName() + ": " + message + ", " + Arrays.toString(args));
+//        System.out.println(IntercomServer.class.getSimpleName() + ": " + message + ", " + Arrays.toString(args));
     }
 
     private void logError(String message, Object... args) {
-        System.err.println(IntercomServer.class.getSimpleName() + ": " + message + ", " + Arrays.toString(args));
+//        System.err.println(IntercomServer.class.getSimpleName() + ": " + message + ", " + Arrays.toString(args));
     }
 }
