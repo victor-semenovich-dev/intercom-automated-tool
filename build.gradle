@@ -31,5 +31,5 @@ jar {
 shadowJar {
     archiveBaseName.set('IntercomAutomatedTool')
     archiveClassifier.set('')
-    archiveVersion.set('2.2.4')
+    archiveVersion.set('2.2.5')
 }
